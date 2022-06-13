@@ -11,8 +11,10 @@ public class Field
     private int _rows;
     private int _cols;
     private Snake _snake;
+    private Food _food;
 
     public List<Point> SnakePosition => _snake.Coords;
+    public Point FoodPosition => _food.Position;
 
     public Direction SnakeDirection
     {
@@ -54,10 +56,23 @@ public class Field
         Columns = cols;
         _rand = new Random((int)DateTime.Now.Ticks);
         _snake = new Snake(new Point(_rand.Next(3, Rows - 3), _rand.Next(3, Columns - 3)));
+        NewFood();
     }
 
+    private void NewFood()
+    {
+        do
+        {
+            _food = new Food(_rand.Next(3, Rows - 3), _rand.Next(3, Columns - 3));
+        } while (_snake.Contains(_food.Position));
+    }
     public void NextStep()
     {
         _snake.Crawl();
+        if (_snake.Ate(_food))
+        {
+            _snake.Grow();
+            NewFood();
+        }
     }
 }

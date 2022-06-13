@@ -64,7 +64,17 @@ namespace Snake
 
         private void DrawFood(Graphics g)
         {
-            //throw new NotImplementedException();
+            var p = new Pen(Color.Gold);
+            var b = new SolidBrush(Color.Yellow);
+            var x = _field.FoodPosition.X;
+            var y = _field.FoodPosition.Y;
+            var r = GetRectangle(x, y);
+            r.X += 2;
+            r.Y += 2;
+            r.Width -= 4;
+            r.Height -= 4;
+            g.FillRectangle(b, r);
+            g.DrawRectangle(p, r);
         }
 
         private void DrawSnake(Graphics g)
@@ -87,12 +97,8 @@ namespace Snake
                         first = y1 < y2 && c == 0 ||
                                 y1 > y2 && c == ln;
                         var cs = first ? CellState.Head : CellState.Body;
-                        
-                        var r = new Rectangle(
-                            MainRectangle.Left + x1 * CellSize,
-                            MainRectangle.Top + (c + sh) * CellSize,
-                            CellSize, CellSize
-                            );
+
+                        var r = GetRectangle(x1, c + sh);
                         PaintCell(g, r, cs);
                         c++;
                     }
@@ -107,16 +113,21 @@ namespace Snake
                         first = y1 < y2 && c == 0 ||
                                 y1 > y2 && c == ln;
                         var cs = first ? CellState.Head : CellState.Body;
-                        var r = new Rectangle(
-                            MainRectangle.Left + (c + sh) * CellSize,
-                            MainRectangle.Top + y1 * CellSize,
-                            CellSize, CellSize
-                        );
+                        var r = GetRectangle(c + sh, y1);
                         PaintCell(g, r, cs);
                         c++;
                     }
                 }
             }
+        }
+
+        private Rectangle GetRectangle(int xc, int yc)
+        {
+            return new Rectangle(
+                MainRectangle.Left + xc * CellSize,
+                MainRectangle.Top + yc * CellSize,
+                CellSize, CellSize
+            );
         }
 
         private void PaintCell(Graphics g, Rectangle r, CellState cs)
@@ -158,7 +169,6 @@ namespace Snake
             }
             finally
             {
-                
             }
         }
     }

@@ -1,4 +1,6 @@
-﻿namespace Snake;
+﻿using System.Security.Cryptography.X509Certificates;
+
+namespace Snake;
 public enum Direction
 {
     ToTop, ToBottom, ToLeft, ToRight
@@ -9,6 +11,7 @@ public class Snake
     private Random _rand;
     private int _length = 3;
     private bool _chDir = false;
+    private bool _grow = false;
 
     public List<Point> Coords => new (_coords);
     private Point Head
@@ -136,32 +139,40 @@ public class Snake
             }
         }
 
-        switch (GetTailDirection())
+        if (!_grow)
         {
-            case Direction.ToTop:
+            switch (GetTailDirection())
             {
-                Tail = new Point(Tail.X, Tail.Y - 1);
-                break;
+                case Direction.ToTop:
+                {
+                    Tail = new Point(Tail.X, Tail.Y - 1);
+                    break;
+                }
+                case Direction.ToBottom:
+                {
+                    Tail = new Point(Tail.X, Tail.Y + 1);
+                    break;
+                }
+                case Direction.ToLeft:
+                {
+                    Tail = new Point(Tail.X - 1, Tail.Y);
+                    break;
+                }
+                case Direction.ToRight:
+                {
+                    Tail = new Point(Tail.X + 1, Tail.Y);
+                    break;
+                }
             }
-            case Direction.ToBottom:
+
+            if (Tail == PreTail)
             {
-                Tail = new Point(Tail.X, Tail.Y + 1);
-                break;
-            }
-            case Direction.ToLeft:
-            {
-                Tail = new Point(Tail.X - 1, Tail.Y);
-                break;
-            }
-            case Direction.ToRight:
-            {
-                Tail = new Point(Tail.X + 1, Tail.Y);
-                break;
+                _coords.Remove(Tail);
             }
         }
-        if (Tail == PreTail)
+        else
         {
-            _coords.Remove(Tail);
+            _grow = false;
         }
     }
 
@@ -171,5 +182,41 @@ public class Snake
         if (PreTail.X > Tail.X) return Direction.ToRight;
         if (PreTail.Y < Tail.Y) return Direction.ToTop;
         return Direction.ToBottom;
+    }
+
+    public void Grow()
+    {
+        _grow = true;
+    }
+    public bool Ate(Food f) => _coords[0].X == f.Position.X && _coords[0].Y == f.Position.Y;
+
+    public bool Contains(Point point)
+    {
+        for (int i = 0; i < _coords.Count - 1; i++)
+        {
+            var c1 = _coords[i];
+            var c2 = _coords[i + 1];
+            if (c1.X == c2.X)
+            {
+                var y1 = Math.Min(_coords[i].Y, _coords[i + 1].Y);
+                var y2 = Math.Max(_coords[i].Y, _coords[i + 1].Y);
+                while (y1 <= y2)
+                {
+                    if (c1.X == point.X && y1 == point.Y) return true;
+                    y1++;
+                }
+            }
+            else
+            {
+                var x1 = Math.Min(_coords[i].X, _coords[i + 1].X);
+                var x2 = Math.Max(_coords[i].X, _coords[i + 1].X);
+                while (x1 <= x2)
+                {
+                    if (c1.Y == point.Y && x1 == point.X) return true;
+                    x1++;
+                }
+            }
+        }
+        return false;
     }
 }
